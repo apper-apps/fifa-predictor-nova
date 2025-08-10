@@ -141,40 +141,68 @@ generateAdvancedPrediction(h2hAnalysis, oddsAnalysis, match) {
       ? h2hAnalysis.totalGoals.reduce((a, b) => a + b, 0) / h2hAnalysis.totalGoals.length
       : 4.2;
 
-    // Use user's exact score predictions if provided
+// Score selection priority: Bookmaker > User > Analysis > Random
     let selectedFullTime = randomBase.fullTimeScore;
     let selectedHalfTime = randomBase.halfTimeScore;
+    let scoreSource = "generated";
 
-    // Prioritize user's exact score inputs
-    if (match.exactScores && match.exactScores.fullTime) {
+    // 1. Prioritize bookmaker exact scores (highest priority)
+    if (match.bookmakerScores && match.bookmakerScores.fullTime) {
+      selectedFullTime = match.bookmakerScores.fullTime;
+      scoreSource = "bookmaker_primary";
+    } else if (match.bookmakerScores && 
+               (match.bookmakerScores.alternative1 || match.bookmakerScores.alternative2 || match.bookmakerScores.alternative3)) {
+      // Use first available alternative bookmaker score
+      const alternatives = [
+        match.bookmakerScores.alternative1,
+        match.bookmakerScores.alternative2,
+        match.bookmakerScores.alternative3
+      ].filter(Boolean);
+      if (alternatives.length > 0) {
+        selectedFullTime = alternatives[0];
+        scoreSource = "bookmaker_alternative";
+      }
+    }
+    // 2. Use user's exact score predictions if no bookmaker scores
+    else if (match.exactScores && match.exactScores.fullTime) {
       selectedFullTime = match.exactScores.fullTime;
-    } else if (oddsAnalysis.highValueScores.length > 0) {
-      // Use highest value exact score from bookmaker odds
+      scoreSource = "user_prediction";
+    } 
+    // 3. Use highest value exact score from bookmaker odds analysis
+    else if (oddsAnalysis.highValueScores.length > 0) {
       const bestValue = oddsAnalysis.highValueScores.sort((a, b) => b.coefficient - a.coefficient)[0];
       selectedFullTime = bestValue.score;
-    } else if (oddsAnalysis.hiddenValue.length > 0) {
+      scoreSource = "odds_analysis";
+    } 
+    // 4. Use hidden value scores
+    else if (oddsAnalysis.hiddenValue.length > 0) {
       selectedFullTime = oddsAnalysis.hiddenValue[Math.floor(Math.random() * oddsAnalysis.hiddenValue.length)];
+      scoreSource = "hidden_value";
     }
 
-    // Use user's half-time prediction or generate based on full-time
-    if (match.exactScores && match.exactScores.halfTime) {
+    // Handle half-time scores with same priority system
+    if (match.bookmakerScores && match.bookmakerScores.halfTime) {
+      selectedHalfTime = match.bookmakerScores.halfTime;
+    } else if (match.exactScores && match.exactScores.halfTime) {
       selectedHalfTime = match.exactScores.halfTime;
     } else {
+      // Generate half-time score based on full-time
       const [ftA, ftB] = selectedFullTime.split("-").map(Number);
       const htA = Math.floor(ftA * (0.4 + Math.random() * 0.4)); // 40-80% of full time
       const htB = Math.floor(ftB * (0.4 + Math.random() * 0.4));
       selectedHalfTime = `${htA}-${htB}`;
     }
-
     // Calculate confidence based on data quality and exact scores
     const dataPoints = match.h2hResults.length + Object.keys(oddsAnalysis.averageOdds).length;
     let baseConfidence = Math.min(95, 60 + (dataPoints * 2));
     
-    // Boost confidence if exact scores provided
-    if (match.exactScores && (match.exactScores.halfTime || match.exactScores.fullTime)) {
-      baseConfidence += 15;
+// Boost confidence based on score source
+    if (match.bookmakerScores && (match.bookmakerScores.halfTime || match.bookmakerScores.fullTime || 
+        match.bookmakerScores.alternative1 || match.bookmakerScores.alternative2 || match.bookmakerScores.alternative3)) {
+      baseConfidence += 25; // Highest boost for bookmaker scores
+    } else if (match.exactScores && (match.exactScores.halfTime || match.exactScores.fullTime)) {
+      baseConfidence += 15; // Medium boost for user predictions
     }
-    
     // Boost confidence for high-value odds
     if (oddsAnalysis.highValueScores.length > 0) {
       baseConfidence += 10;
@@ -185,15 +213,18 @@ generateAdvancedPrediction(h2hAnalysis, oddsAnalysis, match) {
     return {
       halfTimeScore: selectedHalfTime,
       fullTimeScore: selectedFullTime,
-      confidence: confidence,
+confidence: confidence,
       factors: {
         h2hPattern: avgGoals > 4 ? "High-Scoring" : "Moderate",
         goalFrequency: "Very High",
-        exactScores: match.exactScores && (match.exactScores.halfTime || match.exactScores.fullTime) ? "User Provided" : "Generated",
+        scoreSource: scoreSource,
+        exactScores: match.bookmakerScores && Object.values(match.bookmakerScores).some(Boolean) ? "Bookmaker Provided" : 
+                     match.exactScores && (match.exactScores.halfTime || match.exactScores.fullTime) ? "User Provided" : "Generated",
         oddsAnalysis: oddsAnalysis.highValueScores.length > 0 ? "Premium Value Found" : oddsAnalysis.hiddenValue.length > 0 ? "Value Detected" : "Standard",
         coefficientRange: oddsAnalysis.coefficientRange.max > 0 ? `${oddsAnalysis.coefficientRange.min.toFixed(1)}-${oddsAnalysis.coefficientRange.max.toFixed(1)}` : "No odds data",
         hiddenValue: oddsAnalysis.hiddenValue.length > 0 ? "Found" : "Limited",
-        hiddenOdds: oddsAnalysis.highValueScores.length > 0 ? "premium value" : oddsAnalysis.hiddenValue.length > 0 ? "undervalued" : "fairly valued"
+        hiddenOdds: oddsAnalysis.highValueScores.length > 0 ? "premium value" : oddsAnalysis.hiddenValue.length > 0 ? "undervalued" : "fairly valued",
+        bookmakerInput: match.bookmakerScores && Object.values(match.bookmakerScores).some(Boolean) ? "Available" : "Not provided"
       }
     };
   }

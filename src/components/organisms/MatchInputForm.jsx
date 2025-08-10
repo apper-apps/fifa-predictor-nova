@@ -4,40 +4,14 @@ import { toast } from "react-toastify";
 import ApperIcon from "@/components/ApperIcon";
 import FormField from "@/components/molecules/FormField";
 import ScoreInput from "@/components/molecules/ScoreInput";
-import Select from "@/components/atoms/Select";
+import TeamSelector, { englishTeamsWithLogos } from "@/components/molecules/TeamSelector";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 import { cn } from "@/utils/cn";
 
-// Team data with logos for realistic display
-const englishTeamsWithLogos = [
-  { name: "Arsenal", logo: "Users" },
-  { name: "Chelsea", logo: "Trophy" },
-  { name: "Liverpool", logo: "Heart" },
-  { name: "Manchester City", logo: "Crown" },
-  { name: "Manchester United", logo: "Flame" },
-  { name: "Tottenham", logo: "Zap" },
-  { name: "Newcastle", logo: "Mountain" },
-  { name: "Brighton", logo: "Sun" },
-  { name: "West Ham", logo: "Hammer" },
-  { name: "Aston Villa", logo: "Home" },
-  { name: "Crystal Palace", logo: "Gem" },
-  { name: "Fulham", logo: "Flag" },
-  { name: "Brentford", logo: "Hexagon" },
-  { name: "Wolves", logo: "Moon" },
-  { name: "Everton", logo: "Star" },
-  { name: "Nottingham Forest", logo: "TreePine" },
-  { name: "Leeds United", logo: "Award" },
-  { name: "Leicester City", logo: "Medal" },
-  { name: "Southampton", logo: "Anchor" },
-  { name: "Bournemouth", logo: "Cherry" }
-];
-
-const englishTeams = englishTeamsWithLogos.map(team => team.name);
-
 const MatchInputForm = ({ onSubmit, loading }) => {
   const [matchData, setMatchData] = useState({
-teamA: "",
+    teamA: "",
     teamB: "",
     date: "",
     time: "",
@@ -54,16 +28,10 @@ teamA: "",
 
   const [errors, setErrors] = useState({});
 
-const englishTeams = [
-    "Arsenal", "Chelsea", "Liverpool", "Manchester City", "Manchester United",
-    "Tottenham", "Newcastle", "Brighton", "Aston Villa", "West Ham",
-    "Crystal Palace", "Fulham", "Brentford", "Wolves", "Everton",
-    "Nottingham Forest", "Leeds United", "Leicester City", "Southampton", "Bournemouth"
-  ];
-// Get team logo by name
+  // Get team logo by name
   const getTeamLogo = (teamName) => {
     const team = englishTeamsWithLogos.find(t => t.name === teamName);
-    return team ? team.logo : "Shield";
+    return team ? team.logo : "https://via.placeholder.com/32x32?text=?";
   };
 
   const validateForm = () => {
@@ -170,52 +138,54 @@ onSubmit({
             label={
               <div className="flex items-center gap-2">
                 {matchData.teamA && (
-                  <ApperIcon name={getTeamLogo(matchData.teamA)} size={16} className="text-primary" />
+                  <img 
+                    src={getTeamLogo(matchData.teamA)} 
+                    alt={`${matchData.teamA} logo`}
+                    className="w-4 h-4 object-contain"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
                 )}
-                Team A
+                Équipe A
               </div>
             }
             required
             error={errors.teamA}
           >
-            <Select
+            <TeamSelector
               value={matchData.teamA}
               onChange={(e) => setMatchData({ ...matchData, teamA: e.target.value })}
-              placeholder="Select Team A"
+              placeholder="Sélectionner l'Équipe A"
               error={errors.teamA}
-            >
-              {englishTeamsWithLogos.map(team => (
-                <option key={team.name} value={team.name}>
-                  {team.name}
-                </option>
-              ))}
-            </Select>
+            />
           </FormField>
 
-<FormField
+          <FormField
             label={
               <div className="flex items-center gap-2">
                 {matchData.teamB && (
-                  <ApperIcon name={getTeamLogo(matchData.teamB)} size={16} className="text-primary" />
+                  <img 
+                    src={getTeamLogo(matchData.teamB)} 
+                    alt={`${matchData.teamB} logo`}
+                    className="w-4 h-4 object-contain"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
                 )}
-                Team B
+                Équipe B
               </div>
             }
             required
             error={errors.teamB}
           >
-            <Select
+            <TeamSelector
               value={matchData.teamB}
               onChange={(e) => setMatchData({ ...matchData, teamB: e.target.value })}
-              placeholder="Select Team B"
+              placeholder="Sélectionner l'Équipe B"
               error={errors.teamB}
-            >
-              {englishTeamsWithLogos.map(team => (
-                <option key={team.name} value={team.name}>
-                  {team.name}
-                </option>
-))}
-            </Select>
+            />
           </FormField>
         </div>
         {/* Match Date & Time */}
@@ -332,19 +302,20 @@ onSubmit({
 </div>
 
         {/* Exact Scores Section */}
+{/* Exact Scores Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-surface/30 rounded-xl p-6 border border-primary/20"
+          className="bg-accent/10 border border-accent/30 rounded-xl p-6"
         >
           <div className="flex items-center gap-2 mb-4">
             <ApperIcon name="Target" size={20} className="text-accent" />
-            <h3 className="text-lg font-semibold text-white">Exact Score Predictions</h3>
+            <h3 className="text-lg font-semibold text-white">Prédictions Score Exact</h3>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField label="Half-Time Exact Score">
+            <FormField label="Score Exact Mi-Temps">
               <ScoreInput
                 value={matchData.exactScores.halfTime}
                 onChange={(value) => setMatchData({
@@ -355,7 +326,7 @@ onSubmit({
               />
             </FormField>
             
-            <FormField label="Full-Time Exact Score">
+            <FormField label="Score Exact Temps Plein">
               <ScoreInput
                 value={matchData.exactScores.fullTime}
                 onChange={(value) => setMatchData({
@@ -367,10 +338,15 @@ onSubmit({
             </FormField>
           </div>
           
-          <p className="text-xs text-gray-400 mt-3">
-            <ApperIcon name="Info" size={12} className="inline mr-1" />
-            Enter your predicted exact scores to enhance prediction accuracy
-          </p>
+          <div className="bg-accent/5 rounded-lg p-3 mt-4">
+            <p className="text-xs text-gray-300 flex items-start gap-2">
+              <ApperIcon name="Lightbulb" size={12} className="text-accent mt-0.5 flex-shrink-0" />
+              <span>
+                Saisissez vos prédictions de scores exacts pour améliorer la précision de l'analyse. 
+                Ces scores seront comparés aux cotes des bookmakers pour identifier les opportunités de valeur.
+              </span>
+            </p>
+          </div>
         </motion.div>
         {/* Submit Button */}
         <Button

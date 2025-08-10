@@ -26,8 +26,8 @@ const HomePage = () => {
   };
 
   const handleAnalyze = async () => {
-    if (!matchData || bookmakerOdds.length < 3) {
-      toast.error("Please complete match details and add at least 3 bookmaker odds");
+if (!matchData || bookmakerOdds.length < 3) {
+      toast.error("Veuillez compléter les détails du match et ajouter au moins 3 cotes bookmaker");
       return;
     }
 
@@ -52,10 +52,10 @@ const HomePage = () => {
       setPatterns(patternResult);
       setCurrentStep("results");
       
-      toast.success("Analysis complete! Hidden patterns revealed.");
+toast.success("Analyse terminée ! Patterns cachés révélés.");
     } catch (err) {
       setError(err.message || "Failed to analyze match data");
-      toast.error("Analysis failed. Please try again.");
+toast.error("Échec de l'analyse. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -73,13 +73,13 @@ const HomePage = () => {
     setPrediction(null);
     setPatterns(null);
     setError(null);
-    toast.info("Starting new analysis");
+toast.info("Démarrage d'une nouvelle analyse");
   };
 
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Loading message="Analyzing FIFA Virtual patterns..." />
+<Loading message="Analyse des patterns FIFA Virtual..." />
       </div>
     );
   }
@@ -87,8 +87,8 @@ const HomePage = () => {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Error
-          message="Analysis Error"
+<Error
+          message="Erreur d'Analyse"
           description={error}
           onRetry={handleRetry}
         />
@@ -112,7 +112,7 @@ const HomePage = () => {
           <div className={`w-2 h-2 rounded-full ${
             matchData ? "bg-green-400" : currentStep === "input" ? "bg-primary" : "bg-gray-500"
           }`}></div>
-          <span className="text-sm font-medium">Match Setup</span>
+<span className="text-sm font-medium">Configuration Match</span>
         </div>
 
         <div className="w-8 h-px bg-surface"></div>
@@ -125,7 +125,7 @@ const HomePage = () => {
           <div className={`w-2 h-2 rounded-full ${
             bookmakerOdds.length >= 3 ? "bg-green-400" : currentStep === "odds" ? "bg-accent" : "bg-gray-500"
           }`}></div>
-          <span className="text-sm font-medium">Odds Analysis</span>
+<span className="text-sm font-medium">Analyse Cotes</span>
         </div>
 
         <div className="w-8 h-px bg-surface"></div>
@@ -137,7 +137,7 @@ const HomePage = () => {
           <div className={`w-2 h-2 rounded-full ${
             currentStep === "results" ? "bg-info" : "bg-gray-500"
           }`}></div>
-          <span className="text-sm font-medium">AI Predictions</span>
+<span className="text-sm font-medium">Prédictions IA</span>
         </div>
       </motion.div>
 
@@ -156,9 +156,9 @@ const HomePage = () => {
             />
             
             <div className="lg:sticky lg:top-8 lg:h-fit">
-              <Empty 
-                title="Ready for Analysis"
-                description="Enter match details and head-to-head results to begin FIFA Virtual score prediction analysis."
+<Empty 
+                title="Prêt pour l'Analyse"
+                description="Saisissez les détails du match et les résultats face-à-face pour commencer l'analyse de prédiction de score FIFA Virtual."
                 showAction={false}
               />
             </div>
@@ -183,33 +183,33 @@ const HomePage = () => {
             <div className="lg:sticky lg:top-8 lg:h-fit space-y-6">
               {/* Match Summary */}
               <div className="bg-surface/50 backdrop-blur-sm rounded-xl border border-primary/30 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Match Summary</h3>
+<h3 className="text-lg font-semibold text-white mb-4">Résumé du Match</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Teams:</span>
+<span className="text-gray-400">Équipes:</span>
                     <span className="text-white font-medium">
                       {matchData?.teamA} vs {matchData?.teamB}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Date:</span>
+<span className="text-gray-400">Date:</span>
                     <span className="text-white">{matchData?.date} {matchData?.time}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">H2H Records:</span>
-                    <span className="text-white">{matchData?.h2hResults?.length || 0} matches</span>
+<span className="text-gray-400">Historiques H2H:</span>
+<span className="text-white">{matchData?.h2hResults?.length || 0} matchs</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Bookmaker Odds:</span>
-                    <span className="text-white">{bookmakerOdds.length} entries</span>
+<span className="text-gray-400">Cotes Bookmaker:</span>
+<span className="text-white">{bookmakerOdds.length} entrées</span>
                   </div>
                 </div>
               </div>
 
               {bookmakerOdds.length < 3 && (
                 <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
-                  <p className="text-sm text-warning">
-                    Add {3 - bookmakerOdds.length} more bookmaker odds to enable analysis
+<p className="text-sm text-warning">
+                    Ajoutez {3 - bookmakerOdds.length} cotes bookmaker supplémentaires pour activer l'analyse
                   </p>
                 </div>
               )}
@@ -231,7 +231,7 @@ const HomePage = () => {
                 {matchData?.teamA} vs {matchData?.teamB}
               </h2>
               <p className="text-gray-400">
-                {matchData?.date} at {matchData?.time} • AI Analysis Complete
+{matchData?.date} à {matchData?.time} • Analyse IA Terminée
               </p>
             </div>
 
@@ -244,41 +244,41 @@ const HomePage = () => {
               {/* Quick Actions */}
               <div className="space-y-6">
                 <div className="bg-surface/50 backdrop-blur-sm rounded-xl border border-surface p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+<h3 className="text-lg font-semibold text-white mb-4">Actions Rapides</h3>
                   <div className="space-y-3">
                     <button
                       onClick={startOver}
                       className="w-full px-4 py-2 bg-primary/20 text-primary border border-primary/30 rounded-lg hover:bg-primary/30 transition-colors text-sm font-medium"
-                    >
-                      New Analysis
+>
+                      Nouvelle Analyse
                     </button>
                     <button
                       onClick={() => setCurrentStep("odds")}
                       className="w-full px-4 py-2 bg-accent/20 text-accent border border-accent/30 rounded-lg hover:bg-accent/30 transition-colors text-sm font-medium"
-                    >
-                      Modify Odds
+>
+                      Modifier Cotes
                     </button>
                   </div>
                 </div>
 
                 {/* Match Stats */}
                 <div className="bg-surface/50 backdrop-blur-sm rounded-xl border border-surface p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Match Stats</h3>
+<h3 className="text-lg font-semibold text-white mb-4">Stats du Match</h3>
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Analysis Time:</span>
+<span className="text-gray-400">Temps d'Analyse:</span>
                       <span className="text-white">2.3s</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Data Points:</span>
+<span className="text-gray-400">Points de Données:</span>
                       <span className="text-white">{(matchData?.h2hResults?.length || 0) * 2 + bookmakerOdds.length}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Algorithms Used:</span>
+<span className="text-gray-400">Algorithmes Utilisés:</span>
                       <span className="text-white">7</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Confidence:</span>
+<span className="text-gray-400">Confiance:</span>
                       <span className="text-primary font-medium">{prediction?.confidence}%</span>
                     </div>
                   </div>

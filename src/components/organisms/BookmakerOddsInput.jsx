@@ -19,22 +19,22 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
     "Coral", "Sky Bet", "Betway", "888Sport", "Unibet"
   ];
 
-  const addOdd = () => {
+const addOdd = () => {
     if (!newOdd.score || !newOdd.coefficient) {
-      toast.error("Please enter both score and coefficient");
+      toast.error("Veuillez saisir le score et le coefficient");
       return;
     }
 
-    // Validate score format
+// Validate score format
     if (!/^\d{1,2}-\d{1,2}$/.test(newOdd.score)) {
-      toast.error("Score must be in format like 2-1, 0-0");
+      toast.error("Le score doit être au format 2-1, 0-0");
       return;
     }
 
-    // Validate coefficient
+// Validate coefficient
     const coeff = parseFloat(newOdd.coefficient);
     if (isNaN(coeff) || coeff <= 1) {
-      toast.error("Coefficient must be a number greater than 1");
+      toast.error("Le coefficient doit être supérieur à 1");
       return;
     }
 
@@ -44,19 +44,19 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
       coefficient: coeff
     };
 
-    onOddsChange([...odds, oddWithId]);
+onOddsChange([...odds, oddWithId]);
     setNewOdd({ score: "", coefficient: "", bookmaker: "Bet365" });
-    toast.success("Bookmaker odd added");
+    toast.success("Cote bookmaker ajoutée");
   };
 
-  const removeOdd = (id) => {
+const removeOdd = (id) => {
     onOddsChange(odds.filter(odd => odd.id !== id));
-    toast.info("Odd removed");
+    toast.info("Cote supprimée");
   };
 
-  const clearAllOdds = () => {
+const clearAllOdds = () => {
     onOddsChange([]);
-    toast.info("All odds cleared");
+    toast.info("Toutes les cotes effacées");
   };
 
   const getOddColor = (coefficient) => {
@@ -71,20 +71,20 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
       animate={{ opacity: 1, x: 0 }}
       className="bg-surface/80 backdrop-blur-sm rounded-xl border border-accent/30 p-6 glow-border"
     >
-      <div className="flex items-center justify-between mb-6">
+<div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-display text-white flex items-center">
           <ApperIcon name="TrendingUp" size={20} className="mr-2 text-accent" />
-          Bookmaker Odds
+          Cotes Bookmakers
         </h2>
         <Button variant="ghost" size="sm" onClick={clearAllOdds}>
           <ApperIcon name="Trash2" size={16} className="mr-1" />
-          Clear All
+          Tout Effacer
         </Button>
       </div>
 
       {/* Add New Odd Form */}
       <div className="space-y-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+<div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <FormField label="Score">
             <Input
               value={newOdd.score}
@@ -94,7 +94,7 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
             />
           </FormField>
 
-          <FormField label="Coefficient">
+<FormField label="Coefficient">
             <Input
               type="number"
               step="0.01"
@@ -106,7 +106,7 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
             />
           </FormField>
 
-          <FormField label="Bookmaker">
+<FormField label="Bookmaker">
             <select
               value={newOdd.bookmaker}
               onChange={(e) => setNewOdd({ ...newOdd, bookmaker: e.target.value })}
@@ -127,7 +127,7 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
               className="w-full"
             >
               <ApperIcon name="Plus" size={16} className="mr-1" />
-              Add
+              Ajouter
             </Button>
           </div>
         </div>
@@ -135,11 +135,11 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
 
       {/* Odds List */}
       <div className="space-y-3 mb-6 max-h-[400px] overflow-y-auto">
-        {odds.length === 0 ? (
+{odds.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
             <ApperIcon name="Plus" size={32} className="mx-auto mb-2 opacity-50" />
-            <p>No bookmaker odds added yet</p>
-            <p className="text-sm">Add odds to enable analysis</p>
+            <p>Aucune cote bookmaker ajoutée</p>
+            <p className="text-sm">Ajoutez des cotes pour activer l'analyse</p>
           </div>
         ) : (
           odds.map((odd, index) => (
@@ -186,10 +186,10 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
       <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 mb-4">
         <div className="flex items-center gap-2 mb-2">
           <ApperIcon name="Target" size={16} className="text-accent" />
-          <span className="text-sm font-medium text-accent">Exact Score Focus</span>
+          <span className="text-sm font-medium text-accent">Focus Score Exact</span>
         </div>
         <p className="text-xs text-gray-300">
-          Add bookmaker exact score odds with coefficients. Higher coefficients indicate better value opportunities.
+          Ajoutez les cotes de score exact avec coefficients. Les coefficients élevés indiquent de meilleures opportunités.
         </p>
       </div>
 
@@ -201,23 +201,23 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
         disabled={loading || odds.length < 3}
         className="w-full"
       >
-        {loading ? (
+{loading ? (
           <>
             <ApperIcon name="Loader2" size={16} className="mr-2 animate-spin" />
-            Analyzing Exact Score Patterns...
+            Analyse des patterns de score exact...
           </>
         ) : (
           <>
             <ApperIcon name="Crosshair" size={16} className="mr-2" />
-            Analyze Exact Score Value
-            {odds.length < 3 && ` (${3 - odds.length} more exact scores needed)`}
+            Analyser la Valeur du Score Exact
+            {odds.length < 3 && ` (${3 - odds.length} scores exacts supplémentaires requis)`}
           </>
         )}
       </Button>
 
-      {odds.length > 0 && (
+{odds.length > 0 && (
         <p className="text-xs text-gray-400 text-center mt-2">
-          {odds.length} exact score odds ready • Focus on high-coefficient scores for better value
+          {odds.length} cotes de score exact prêtes • Concentrez-vous sur les scores à coefficients élevés pour une meilleure valeur
         </p>
       )}
     </motion.div>

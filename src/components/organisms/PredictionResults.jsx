@@ -13,10 +13,10 @@ const PredictionResults = ({ prediction }) => {
     return "text-warning";
   };
 
-  const getConfidenceLabel = (conf) => {
-    if (conf >= 80) return "High Confidence";
-    if (conf >= 60) return "Medium Confidence";
-    return "Low Confidence";
+const getConfidenceLabel = (conf) => {
+    if (conf >= 80) return "Confiance Élevée";
+    if (conf >= 60) return "Confiance Moyenne";
+    return "Confiance Faible";
   };
 
   return (
@@ -28,9 +28,9 @@ const PredictionResults = ({ prediction }) => {
       {/* Main Predictions */}
       <div className="bg-gradient-to-br from-surface/80 to-secondary/50 backdrop-blur-sm rounded-xl border border-primary/30 p-6 glow-border">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-display text-white flex items-center">
-            <ApperIcon name="Target" size={20} className="mr-2 text-primary" />
-            AI Predictions
+<h2 className="text-xl font-display text-white flex items-center">
+          <ApperIcon name="Target" size={20} className="mr-2 text-primary" />
+          Prédictions IA
           </h2>
           <div className={cn(
             "px-3 py-1 rounded-full text-xs font-medium",
@@ -50,14 +50,14 @@ const PredictionResults = ({ prediction }) => {
             transition={{ delay: 0.2 }}
             className="text-center p-6 bg-background/50 rounded-lg border border-accent/30"
           >
-            <div className="flex items-center justify-center mb-2">
+<div className="flex items-center justify-center mb-2">
               <ApperIcon name="Clock" size={16} className="text-accent mr-2" />
-              <span className="text-sm font-medium text-gray-300">Half-Time Score</span>
+              <span className="text-sm font-medium text-gray-300">Score Mi-Temps</span>
             </div>
             <div className="text-3xl font-display font-bold text-accent mb-2">
               {prediction.halfTimeScore}
             </div>
-            <div className="text-xs text-gray-400">45' Prediction</div>
+<div className="text-xs text-gray-400">Prédiction 45'</div>
           </motion.div>
 
           {/* Full-Time Prediction */}
@@ -72,52 +72,52 @@ const PredictionResults = ({ prediction }) => {
                 : "border-primary/30"
             )}
           >
-            <div className="flex items-center justify-center mb-2">
+<div className="flex items-center justify-center mb-2">
               <ApperIcon name="Flag" size={16} className="text-primary mr-2" />
-              <span className="text-sm font-medium text-gray-300">Full-Time Score</span>
+              <span className="text-sm font-medium text-gray-300">Score Temps Plein</span>
             </div>
             <div className="text-4xl font-display font-bold text-primary mb-2">
               {prediction.fullTimeScore}
             </div>
-            <div className="text-xs text-gray-400">90' Final Score</div>
+<div className="text-xs text-gray-400">Score Final 90'</div>
           </motion.div>
         </div>
 
         {/* Confidence Meter */}
-        <ConfidenceBar 
+<ConfidenceBar 
           confidence={prediction.confidence}
-          label="Prediction Confidence"
+          label="Confiance de la Prédiction"
           className="mb-4"
         />
       </div>
 
       {/* Analysis Factors */}
       <div className="bg-surface/50 backdrop-blur-sm rounded-xl border border-info/30 p-6">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+<h3 className="text-lg font-semibold text-white mb-4 flex items-center">
           <ApperIcon name="Brain" size={18} className="mr-2 text-info" />
-          Analysis Factors
+          Facteurs d'Analyse
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="text-center p-4 bg-background/30 rounded-lg">
             <ApperIcon name="Users" size={24} className="text-primary mx-auto mb-2" />
-            <div className="text-sm text-gray-300 mb-1">H2H Pattern</div>
+<div className="text-sm text-gray-300 mb-1">Pattern H2H</div>
             <div className="text-lg font-bold text-white">
-              {prediction.factors?.h2hPattern || "Strong"}
+              {prediction.factors?.h2hPattern || "Fort"}
             </div>
           </div>
 
           <div className="text-center p-4 bg-background/30 rounded-lg">
             <ApperIcon name="TrendingUp" size={24} className="text-accent mx-auto mb-2" />
-            <div className="text-sm text-gray-300 mb-1">Goal Frequency</div>
+<div className="text-sm text-gray-300 mb-1">Fréquence Buts</div>
             <div className="text-lg font-bold text-white">
-              {prediction.factors?.goalFrequency || "High"}
+              {prediction.factors?.goalFrequency || "Élevée"}
             </div>
           </div>
 
           <div className="text-center p-4 bg-background/30 rounded-lg">
             <ApperIcon name="BarChart3" size={24} className="text-info mx-auto mb-2" />
-            <div className="text-sm text-gray-300 mb-1">Odds Analysis</div>
+<div className="text-sm text-gray-300 mb-1">Analyse Cotes</div>
             <div className="text-lg font-bold text-white">
               {prediction.factors?.oddsAnalysis || "Favorable"}
             </div>
@@ -125,9 +125,9 @@ const PredictionResults = ({ prediction }) => {
 
           <div className="text-center p-4 bg-background/30 rounded-lg">
             <ApperIcon name="Zap" size={24} className="text-warning mx-auto mb-2" />
-            <div className="text-sm text-gray-300 mb-1">Hidden Value</div>
+<div className="text-sm text-gray-300 mb-1">Valeur Cachée</div>
             <div className="text-lg font-bold text-white">
-              {prediction.factors?.hiddenValue || "Detected"}
+              {prediction.factors?.hiddenValue || "Détectée"}
             </div>
           </div>
         </div>
@@ -135,34 +135,34 @@ const PredictionResults = ({ prediction }) => {
 
       {/* Algorithm Insights */}
       <div className="bg-secondary/50 backdrop-blur-sm rounded-xl border border-surface p-6">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+<h3 className="text-lg font-semibold text-white mb-4 flex items-center">
           <ApperIcon name="Cpu" size={18} className="mr-2 text-primary" />
-          Algorithm Insights
+          Insights Algorithme
         </h3>
 
         <div className="space-y-3 text-sm">
           <div className="flex items-start space-x-3">
             <ApperIcon name="CheckCircle" size={16} className="text-primary mt-0.5 flex-shrink-0" />
-            <p className="text-gray-300">
-              Pattern recognition algorithm identified recurring score tendencies in H2H matches
+<p className="text-gray-300">
+              L'algorithme de reconnaissance de patterns a identifié des tendances de score récurrentes dans les matchs H2H
             </p>
           </div>
           <div className="flex items-start space-x-3">
             <ApperIcon name="CheckCircle" size={16} className="text-primary mt-0.5 flex-shrink-0" />
-            <p className="text-gray-300">
-              Half-time analysis shows consistent goal-scoring patterns in first 45 minutes
+<p className="text-gray-300">
+              L'analyse mi-temps montre des patterns de buts cohérents dans les 45 premières minutes
             </p>
           </div>
           <div className="flex items-start space-x-3">
             <ApperIcon name="CheckCircle" size={16} className="text-primary mt-0.5 flex-shrink-0" />
-            <p className="text-gray-300">
-              Bookmaker coefficient analysis reveals {prediction.factors?.hiddenOdds || "undervalued"} betting opportunities
+<p className="text-gray-300">
+              L'analyse des coefficients bookmaker révèle des opportunités de paris {prediction.factors?.hiddenOdds || "sous-évaluées"}
             </p>
           </div>
           <div className="flex items-start space-x-3">
             <ApperIcon name="CheckCircle" size={16} className="text-primary mt-0.5 flex-shrink-0" />
-            <p className="text-gray-300">
-              Virtual championship high-scoring nature factored into final prediction
+<p className="text-gray-300">
+              La nature hautement offensive du championnat virtuel a été prise en compte dans la prédiction finale
             </p>
           </div>
         </div>

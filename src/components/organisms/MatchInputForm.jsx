@@ -11,12 +11,12 @@ import { cn } from "@/utils/cn";
 
 // Team data with logos for realistic display
 const englishTeamsWithLogos = [
-  { name: "Arsenal", logo: "Shield" },
-  { name: "Chelsea", logo: "Crown" },
+  { name: "Arsenal", logo: "Users" },
+  { name: "Chelsea", logo: "Trophy" },
   { name: "Liverpool", logo: "Heart" },
-  { name: "Manchester City", logo: "Circle" },
-  { name: "Manchester United", logo: "Zap" },
-  { name: "Tottenham", logo: "Triangle" },
+  { name: "Manchester City", logo: "Crown" },
+  { name: "Manchester United", logo: "Flame" },
+  { name: "Tottenham", logo: "Zap" },
   { name: "Newcastle", logo: "Mountain" },
   { name: "Brighton", logo: "Sun" },
   { name: "West Ham", logo: "Hammer" },
@@ -54,11 +54,11 @@ teamA: "",
 
   const [errors, setErrors] = useState({});
 
-  const englishTeams = [
+const englishTeams = [
     "Arsenal", "Chelsea", "Liverpool", "Manchester City", "Manchester United",
     "Tottenham", "Newcastle", "Brighton", "Aston Villa", "West Ham",
     "Crystal Palace", "Fulham", "Brentford", "Wolves", "Everton",
-    "Nottingham Forest", "Sheffield United", "Burnley", "Luton Town", "Bournemouth"
+    "Nottingham Forest", "Leeds United", "Leicester City", "Southampton", "Bournemouth"
   ];
 // Get team logo by name
   const getTeamLogo = (teamName) => {

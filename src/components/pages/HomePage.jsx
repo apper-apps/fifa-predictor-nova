@@ -13,7 +13,7 @@ import predictionsData from "@/services/mockData/predictions.json";
 import patternsData from "@/services/mockData/patterns.json";
 import predictionService from "@/services/api/predictionService";
 
-const HomePage = () => {
+function HomePage() {
 const [currentStep, setCurrentStep] = useState("input"); // input, odds, results
   const [matchData, setMatchData] = useState(null);
   const [bookmakerOdds, setBookmakerOdds] = useState([]);
@@ -411,6 +411,7 @@ toast.info("Démarrage d'une nouvelle analyse");
         )}
       </AnimatePresence>
     </div>
-  );
+);
+}
 
 export default HomePage;

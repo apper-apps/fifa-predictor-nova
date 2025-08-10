@@ -1,22 +1,12 @@
 import mockPredictions from "@/services/mockData/predictions.json";
 import mockPatterns from "@/services/mockData/patterns.json";
 class PredictionService {
-async generatePrediction(data) {
+  async generatePrediction(data) {
     // Simulate API delay for realistic loading state
     await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 2000));
 
     try {
       const { match, odds } = data;
-
-      // Get user's weight preferences
-      const savedWeights = localStorage.getItem('predictionWeights');
-      const weights = savedWeights ? JSON.parse(savedWeights) : {
-        historicalData: 25,
-        bookmakerOdds: 30,
-        exactScores: 20,
-        patternRecognition: 15,
-        hiddenValue: 10
-      };
 
       // Analyze H2H patterns
       const h2hAnalysis = this.analyzeH2HPatterns(match.h2hResults);
@@ -24,8 +14,8 @@ async generatePrediction(data) {
       // Analyze bookmaker odds
       const oddsAnalysis = this.analyzeBookmakerOdds(odds);
       
-      // Generate prediction using advanced algorithms with custom weights
-      const prediction = this.generateAdvancedPrediction(h2hAnalysis, oddsAnalysis, match, weights);
+      // Generate prediction using advanced algorithms
+      const prediction = this.generateAdvancedPrediction(h2hAnalysis, oddsAnalysis, match);
 
       return prediction;
     } catch (error) {
@@ -141,124 +131,69 @@ analyzeBookmakerOdds(odds) {
     return analysis;
   }
 
-generateAdvancedPrediction(h2hAnalysis, oddsAnalysis, match, weights = {}) {
-    // Default weights if not provided
-    const defaultWeights = {
-      historicalData: 25,
-      bookmakerOdds: 30,
-      exactScores: 20,
-      patternRecognition: 15,
-      hiddenValue: 10
-    };
-    const finalWeights = { ...defaultWeights, ...weights };
-
+generateAdvancedPrediction(h2hAnalysis, oddsAnalysis, match) {
     // Get base prediction from mock data
     const basePredictions = mockPredictions.predictions;
     const randomBase = basePredictions[Math.floor(Math.random() * basePredictions.length)];
 
-    // Calculate weighted analysis components
+    // Enhance with actual analysis
     const avgGoals = h2hAnalysis.totalGoals.length > 0 
       ? h2hAnalysis.totalGoals.reduce((a, b) => a + b, 0) / h2hAnalysis.totalGoals.length
       : 4.2;
 
-    // Apply weights to influence score selection
+    // Use user's exact score predictions if provided
     let selectedFullTime = randomBase.fullTimeScore;
     let selectedHalfTime = randomBase.halfTimeScore;
 
-    // Score selection priority based on weights
-    if (match.exactScores && match.exactScores.fullTime && finalWeights.exactScores > 15) {
-      // Higher exact score weight prioritizes user input
+    // Prioritize user's exact score inputs
+    if (match.exactScores && match.exactScores.fullTime) {
       selectedFullTime = match.exactScores.fullTime;
-    } else if (oddsAnalysis.highValueScores.length > 0 && finalWeights.bookmakerOdds > 25) {
-      // Higher bookmaker odds weight uses premium odds analysis
+    } else if (oddsAnalysis.highValueScores.length > 0) {
+      // Use highest value exact score from bookmaker odds
       const bestValue = oddsAnalysis.highValueScores.sort((a, b) => b.coefficient - a.coefficient)[0];
       selectedFullTime = bestValue.score;
-    } else if (oddsAnalysis.hiddenValue.length > 0 && finalWeights.hiddenValue > 8) {
-      // Higher hidden value weight uses undervalued scores
+    } else if (oddsAnalysis.hiddenValue.length > 0) {
       selectedFullTime = oddsAnalysis.hiddenValue[Math.floor(Math.random() * oddsAnalysis.hiddenValue.length)];
-    } else if (finalWeights.historicalData > 20 && h2hAnalysis.commonScores.length > 0) {
-      // Higher historical data weight uses H2H patterns
-      selectedFullTime = h2hAnalysis.commonScores[Math.floor(Math.random() * h2hAnalysis.commonScores.length)];
     }
 
-    // Half-time score generation with weight influence
-    if (match.exactScores && match.exactScores.halfTime && finalWeights.exactScores > 15) {
+    // Use user's half-time prediction or generate based on full-time
+    if (match.exactScores && match.exactScores.halfTime) {
       selectedHalfTime = match.exactScores.halfTime;
     } else {
       const [ftA, ftB] = selectedFullTime.split("-").map(Number);
-      // Pattern recognition weight influences half-time calculation
-      const patternInfluence = finalWeights.patternRecognition / 100;
-      const htA = Math.floor(ftA * (0.3 + (patternInfluence * 0.5) + Math.random() * 0.3));
-      const htB = Math.floor(ftB * (0.3 + (patternInfluence * 0.5) + Math.random() * 0.3));
+      const htA = Math.floor(ftA * (0.4 + Math.random() * 0.4)); // 40-80% of full time
+      const htB = Math.floor(ftB * (0.4 + Math.random() * 0.4));
       selectedHalfTime = `${htA}-${htB}`;
     }
 
-    // Calculate weighted confidence
+    // Calculate confidence based on data quality and exact scores
     const dataPoints = match.h2hResults.length + Object.keys(oddsAnalysis.averageOdds).length;
-    let baseConfidence = Math.min(95, 50 + (dataPoints * 1.5));
+    let baseConfidence = Math.min(95, 60 + (dataPoints * 2));
     
-    // Weight-based confidence adjustments
-    if (finalWeights.historicalData > 20) {
-      baseConfidence += Math.min(15, finalWeights.historicalData * 0.3);
+    // Boost confidence if exact scores provided
+    if (match.exactScores && (match.exactScores.halfTime || match.exactScores.fullTime)) {
+      baseConfidence += 15;
     }
     
-    if (finalWeights.bookmakerOdds > 25 && oddsAnalysis.highValueScores.length > 0) {
-      baseConfidence += Math.min(12, finalWeights.bookmakerOdds * 0.2);
-    }
-    
-    if (finalWeights.exactScores > 15 && match.exactScores && 
-        (match.exactScores.halfTime || match.exactScores.fullTime)) {
-      baseConfidence += Math.min(18, finalWeights.exactScores * 0.4);
-    }
-    
-    if (finalWeights.patternRecognition > 10) {
-      baseConfidence += Math.min(8, finalWeights.patternRecognition * 0.3);
-    }
-    
-    if (finalWeights.hiddenValue > 8 && oddsAnalysis.hiddenValue.length > 0) {
-      baseConfidence += Math.min(10, finalWeights.hiddenValue * 0.4);
+    // Boost confidence for high-value odds
+    if (oddsAnalysis.highValueScores.length > 0) {
+      baseConfidence += 10;
     }
 
-    const confidence = Math.min(98, Math.floor(baseConfidence + Math.random() * 3));
-
-    // Generate factor descriptions based on weights
-    const getWeightedDescription = (baseDesc, weight, threshold, enhancedDesc) => {
-      return weight > threshold ? enhancedDesc : baseDesc;
-    };
+    const confidence = Math.min(98, Math.floor(baseConfidence + Math.random() * 5));
 
     return {
       halfTimeScore: selectedHalfTime,
       fullTimeScore: selectedFullTime,
       confidence: confidence,
       factors: {
-        h2hPattern: getWeightedDescription(
-          avgGoals > 4 ? "High-Scoring" : "Moderate",
-          finalWeights.historicalData,
-          25,
-          avgGoals > 4 ? "Heavily Weighted High-Scoring Pattern" : "Weighted Historical Analysis"
-        ),
-        goalFrequency: finalWeights.patternRecognition > 12 ? "AI-Enhanced Pattern Detection" : "Standard Analysis",
-        exactScores: getWeightedDescription(
-          match.exactScores && (match.exactScores.halfTime || match.exactScores.fullTime) ? "User Provided" : "Generated",
-          finalWeights.exactScores,
-          18,
-          "High Priority User Input"
-        ),
-        oddsAnalysis: getWeightedDescription(
-          oddsAnalysis.highValueScores.length > 0 ? "Premium Value Found" : oddsAnalysis.hiddenValue.length > 0 ? "Value Detected" : "Standard",
-          finalWeights.bookmakerOdds,
-          28,
-          "Premium Weighted Odds Analysis"
-        ),
+        h2hPattern: avgGoals > 4 ? "High-Scoring" : "Moderate",
+        goalFrequency: "Very High",
+        exactScores: match.exactScores && (match.exactScores.halfTime || match.exactScores.fullTime) ? "User Provided" : "Generated",
+        oddsAnalysis: oddsAnalysis.highValueScores.length > 0 ? "Premium Value Found" : oddsAnalysis.hiddenValue.length > 0 ? "Value Detected" : "Standard",
         coefficientRange: oddsAnalysis.coefficientRange.max > 0 ? `${oddsAnalysis.coefficientRange.min.toFixed(1)}-${oddsAnalysis.coefficientRange.max.toFixed(1)}` : "No odds data",
-        hiddenValue: getWeightedDescription(
-          oddsAnalysis.hiddenValue.length > 0 ? "Found" : "Limited",
-          finalWeights.hiddenValue,
-          12,
-          "Enhanced Value Detection"
-        ),
-        hiddenOdds: oddsAnalysis.highValueScores.length > 0 ? "premium value" : oddsAnalysis.hiddenValue.length > 0 ? "undervalued" : "fairly valued",
-        customWeights: `H:${finalWeights.historicalData}% B:${finalWeights.bookmakerOdds}% E:${finalWeights.exactScores}% P:${finalWeights.patternRecognition}% V:${finalWeights.hiddenValue}%`
+        hiddenValue: oddsAnalysis.hiddenValue.length > 0 ? "Found" : "Limited",
+        hiddenOdds: oddsAnalysis.highValueScores.length > 0 ? "premium value" : oddsAnalysis.hiddenValue.length > 0 ? "undervalued" : "fairly valued"
       }
     };
   }

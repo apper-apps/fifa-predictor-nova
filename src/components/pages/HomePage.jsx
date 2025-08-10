@@ -13,8 +13,8 @@ import predictionsData from "@/services/mockData/predictions.json";
 import patternsData from "@/services/mockData/patterns.json";
 import predictionService from "@/services/api/predictionService";
 
-function HomePage() {
-const [currentStep, setCurrentStep] = useState("input"); // input, odds, results
+const HomePage = () => {
+  const [currentStep, setCurrentStep] = useState("input"); // input, odds, results
   const [matchData, setMatchData] = useState(null);
   const [bookmakerOdds, setBookmakerOdds] = useState([]);
   const [prediction, setPrediction] = useState(null);
@@ -22,7 +22,6 @@ const [currentStep, setCurrentStep] = useState("input"); // input, odds, results
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showExportDropdown, setShowExportDropdown] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const handleMatchSubmit = (data) => {
     setMatchData(data);
@@ -68,10 +67,6 @@ const handleExport = async (format) => {
     }
   };
 
-const handleSettingsToggle = () => {
-    setShowSettingsModal(!showSettingsModal);
-  };
-
   const handleAnalyze = async () => {
     if (!matchData || bookmakerOdds.length < 3) {
       toast.error("Veuillez compléter les détails du match et ajouter au moins 3 cotes bookmaker");
@@ -99,10 +94,10 @@ const handleSettingsToggle = () => {
       setPatterns(patternResult);
       setCurrentStep("results");
       
-      toast.success("Analyse terminée ! Patterns cachés révélés.");
+toast.success("Analyse terminée ! Patterns cachés révélés.");
     } catch (err) {
       setError(err.message || "Failed to analyze match data");
-      toast.error("Échec de l'analyse. Veuillez réessayer.");
+toast.error("Échec de l'analyse. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -144,27 +139,7 @@ toast.info("Démarrage d'une nouvelle analyse");
   }
 
   return (
-<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header with Settings */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
-          <h1 className="text-2xl font-display font-bold text-white">
-            Advanced Match Predictor
-          </h1>
-        </div>
-        
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleSettingsToggle}
-          className="flex items-center space-x-2 px-4 py-2 bg-surface border border-primary/30 rounded-lg text-white hover:border-primary/50 hover:bg-surface/80 transition-all duration-200"
-        >
-          <ApperIcon name="Settings" size={16} />
-          <span className="hidden sm:inline text-sm">Settings</span>
-        </motion.button>
-      </div>
-
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Step Indicator */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -405,13 +380,13 @@ toast.info("Démarrage d'une nouvelle analyse");
               </div>
             </div>
 
-{/* Pattern Visualization */}
+            {/* Pattern Visualization */}
             <PatternVisualization data={patterns} />
-          </motion.div>
+</motion.div>
         )}
       </AnimatePresence>
     </div>
-);
-}
+  );
+};
 
 export default HomePage;

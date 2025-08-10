@@ -9,18 +9,10 @@ const ScoreInput = ({
   className,
   error 
 }) => {
-const handleChange = (e) => {
-    let score = e.target.value;
-    
-    // Auto-format: if user types numbers, add dash automatically
-    if (score.length === 1 && /^\d$/.test(score)) {
-      // Don't auto-add dash yet, wait for next character
-    } else if (score.length === 2 && /^\d\d$/.test(score)) {
-      score = score[0] + '-' + score[1];
-    }
-    
-    // Validate final format or allow partial input
-    if (score === "" || /^\d{1,2}$/.test(score) || /^\d{1,2}-$/.test(score) || /^\d{1,2}-\d{1,2}$/.test(score)) {
+  const handleChange = (e) => {
+    const score = e.target.value;
+    // Basic validation for score format (e.g., "2-1", "0-0")
+    if (score === "" || /^\d{1,2}-\d{1,2}$/.test(score)) {
       onChange(score);
     }
   };

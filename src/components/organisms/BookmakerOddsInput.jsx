@@ -21,27 +21,20 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
 
 const addOdd = () => {
     if (!newOdd.score || !newOdd.coefficient) {
-      toast.error("Veuillez saisir le score exact et le coefficient");
+      toast.error("Veuillez saisir le score et le coefficient");
       return;
     }
 
-    // Validate exact score format
+// Validate score format
     if (!/^\d{1,2}-\d{1,2}$/.test(newOdd.score)) {
-      toast.error("Le score exact doit être au format 2-1, 0-0, etc.");
+      toast.error("Le score doit être au format 2-1, 0-0");
       return;
     }
 
-    // Validate coefficient for exact score (typically higher)
+// Validate coefficient
     const coeff = parseFloat(newOdd.coefficient);
     if (isNaN(coeff) || coeff <= 1) {
-      toast.error("Le coefficient doit être supérieur à 1.00");
-      return;
-    }
-
-    // Check for duplicate exact scores
-    const duplicateScore = odds.find(odd => odd.score === newOdd.score && odd.bookmaker === newOdd.bookmaker);
-    if (duplicateScore) {
-      toast.error(`Le score exact ${newOdd.score} existe déjà pour ${newOdd.bookmaker}`);
+      toast.error("Le coefficient doit être supérieur à 1");
       return;
     }
 
@@ -51,9 +44,9 @@ const addOdd = () => {
       coefficient: coeff
     };
 
-    onOddsChange([...odds, oddWithId]);
+onOddsChange([...odds, oddWithId]);
     setNewOdd({ score: "", coefficient: "", bookmaker: "Bet365" });
-    toast.success(`Cote score exact ${newOdd.score} ajoutée (${coeff.toFixed(2)})`);
+    toast.success("Cote bookmaker ajoutée");
   };
 
 const removeOdd = (id) => {
@@ -190,15 +183,13 @@ const clearAllOdds = () => {
       </div>
 
 {/* Exact Score Focus Info */}
-      <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 mb-4">
+      <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 mb-4">
         <div className="flex items-center gap-2 mb-2">
-          <ApperIcon name="Target" size={16} className="text-primary" />
-          <span className="text-sm font-medium text-primary">Spécialisé Score Exact</span>
+          <ApperIcon name="Target" size={16} className="text-accent" />
+          <span className="text-sm font-medium text-accent">Focus Score Exact</span>
         </div>
-        <p className="text-xs text-gray-300 leading-relaxed">
-          Cette section est dédiée exclusivement aux <span className="text-accent font-medium">cotes de score exact</span>. 
-          Ajoutez les coefficients des bookmakers pour les scores précis (ex: 2-1, 0-0). 
-          Les coefficients élevés (15+) offrent généralement une meilleure valeur potentielle.
+        <p className="text-xs text-gray-300">
+          Ajoutez les cotes de score exact avec coefficients. Les coefficients élevés indiquent de meilleures opportunités.
         </p>
       </div>
 
@@ -213,13 +204,13 @@ const clearAllOdds = () => {
 {loading ? (
           <>
             <ApperIcon name="Loader2" size={16} className="mr-2 animate-spin" />
-            Analyse des cotes de score exact en cours...
+            Analyse des patterns de score exact...
           </>
         ) : (
           <>
             <ApperIcon name="Crosshair" size={16} className="mr-2" />
-            Analyser les Opportunités Score Exact
-            {odds.length < 3 && ` (${3 - odds.length} cotes supplémentaires requises)`}
+            Analyser la Valeur du Score Exact
+            {odds.length < 3 && ` (${3 - odds.length} scores exacts supplémentaires requis)`}
           </>
         )}
       </Button>

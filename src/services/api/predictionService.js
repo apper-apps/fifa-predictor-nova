@@ -1,3 +1,5 @@
+import React from "react";
+import Error from "@/components/ui/Error";
 import mockPredictions from "@/services/mockData/predictions.json";
 import mockPatterns from "@/services/mockData/patterns.json";
 
@@ -212,6 +214,228 @@ generateAdvancedPrediction(h2hAnalysis, oddsAnalysis, match) {
           return (a + b) >= 3;
         })
       : highScoringScores;
+  }
+}
+
+  // Export functionality
+  exportToCSV(prediction, matchData, bookmakerOdds) {
+    const data = this.prepareExportData(prediction, matchData, bookmakerOdds);
+    
+    const csvContent = [
+      // Header
+      ['Match', 'Date', 'Time', 'Half-Time Score', 'Full-Time Score', 'Confidence', 'H2H Pattern', 'Goal Frequency', 'Odds Analysis', 'Hidden Value'],
+      // Data row
+      [
+        `${data.teamA} vs ${data.teamB}`,
+        data.date,
+        data.time,
+        data.halfTimeScore,
+        data.fullTimeScore,
+        `${data.confidence}%`,
+        data.factors.h2hPattern,
+        data.factors.goalFrequency,
+        data.factors.oddsAnalysis,
+        data.factors.hiddenValue
+      ]
+    ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+
+    this.downloadFile(csvContent, `prediction_${data.teamA}_vs_${data.teamB}.csv`, 'text/csv');
+    return true;
+  }
+
+  exportToExcel(prediction, matchData, bookmakerOdds) {
+    try {
+      // Dynamic import for xlsx
+      import('xlsx').then(XLSX => {
+        const data = this.prepareExportData(prediction, matchData, bookmakerOdds);
+        
+        const workbook = XLSX.utils.book_new();
+        
+        // Main prediction sheet
+        const mainData = [
+          ['Match Information', ''],
+          ['Teams', `${data.teamA} vs ${data.teamB}`],
+          ['Date', data.date],
+          ['Time', data.time],
+          ['', ''],
+          ['Predictions', ''],
+          ['Half-Time Score', data.halfTimeScore],
+          ['Full-Time Score', data.fullTimeScore],
+          ['Confidence', `${data.confidence}%`],
+          ['', ''],
+          ['Analysis Factors', ''],
+          ['H2H Pattern', data.factors.h2hPattern],
+          ['Goal Frequency', data.factors.goalFrequency],
+          ['Exact Scores', data.factors.exactScores],
+          ['Odds Analysis', data.factors.oddsAnalysis],
+          ['Hidden Value', data.factors.hiddenValue],
+          ['Hidden Odds', data.factors.hiddenOdds]
+        ];
+        
+        const mainSheet = XLSX.utils.aoa_to_sheet(mainData);
+        XLSX.utils.book_append_sheet(workbook, mainSheet, 'Prediction');
+        
+        // Bookmaker odds sheet if available
+        if (bookmakerOdds && bookmakerOdds.length > 0) {
+          const oddsData = [
+            ['Bookmaker', 'Score', 'Coefficient'],
+            ...bookmakerOdds.map(odd => [odd.bookmaker, odd.score, odd.coefficient])
+          ];
+          const oddsSheet = XLSX.utils.aoa_to_sheet(oddsData);
+          XLSX.utils.book_append_sheet(workbook, oddsSheet, 'Bookmaker Odds');
+        }
+        
+        // H2H Results sheet if available
+        if (matchData?.h2hResults && matchData.h2hResults.length > 0) {
+          const h2hData = [
+            ['Date', 'Half-Time', 'Full-Time', 'Competition'],
+            ...matchData.h2hResults.map(result => [
+              result.date,
+              result.halfTimeScore,
+              result.fullTimeScore,
+              result.competition
+            ])
+          ];
+          const h2hSheet = XLSX.utils.aoa_to_sheet(h2hData);
+          XLSX.utils.book_append_sheet(workbook, h2hSheet, 'H2H History');
+        }
+        
+        XLSX.writeFile(workbook, `prediction_${data.teamA}_vs_${data.teamB}.xlsx`);
+      }).catch(error => {
+        console.error('Excel export error:', error);
+        throw new Error('Failed to export Excel file');
+      });
+      return true;
+    } catch (error) {
+      throw new Error('Excel export failed: ' + error.message);
+    }
+  }
+
+  exportToJSON(prediction, matchData, bookmakerOdds) {
+    const data = this.prepareExportData(prediction, matchData, bookmakerOdds);
+    
+    const exportData = {
+      match: {
+        teams: `${data.teamA} vs ${data.teamB}`,
+        teamA: data.teamA,
+        teamB: data.teamB,
+        date: data.date,
+        time: data.time
+      },
+      prediction: {
+        halfTimeScore: data.halfTimeScore,
+        fullTimeScore: data.fullTimeScore,
+        confidence: data.confidence,
+        factors: data.factors
+      },
+      bookmakerOdds: bookmakerOdds || [],
+      h2hHistory: matchData?.h2hResults || [],
+      exportedAt: new Date().toISOString(),
+      version: "1.0"
+    };
+    
+    const jsonContent = JSON.stringify(exportData, null, 2);
+    this.downloadFile(jsonContent, `prediction_${data.teamA}_vs_${data.teamB}.json`, 'application/json');
+    return true;
+  }
+
+  exportToPDF(prediction, matchData, bookmakerOdds) {
+    try {
+      // Dynamic import for jsPDF
+      import('jspdf').then(({ jsPDF }) => {
+        const data = this.prepareExportData(prediction, matchData, bookmakerOdds);
+        const doc = new jsPDF();
+        
+        // Header
+        doc.setFontSize(20);
+        doc.text('FIFA Virtual Prediction Report', 20, 20);
+        
+        doc.setFontSize(16);
+        doc.text(`${data.teamA} vs ${data.teamB}`, 20, 35);
+        
+        doc.setFontSize(12);
+        doc.text(`Date: ${data.date} at ${data.time}`, 20, 45);
+        
+        // Predictions
+        doc.setFontSize(14);
+        doc.text('Predictions', 20, 60);
+        
+        doc.setFontSize(12);
+        doc.text(`Half-Time Score: ${data.halfTimeScore}`, 25, 70);
+        doc.text(`Full-Time Score: ${data.fullTimeScore}`, 25, 80);
+        doc.text(`Confidence: ${data.confidence}%`, 25, 90);
+        
+        // Analysis Factors
+        doc.setFontSize(14);
+        doc.text('Analysis Factors', 20, 105);
+        
+        doc.setFontSize(12);
+        let yPos = 115;
+        doc.text(`H2H Pattern: ${data.factors.h2hPattern}`, 25, yPos);
+        doc.text(`Goal Frequency: ${data.factors.goalFrequency}`, 25, yPos + 10);
+        doc.text(`Exact Scores: ${data.factors.exactScores}`, 25, yPos + 20);
+        doc.text(`Odds Analysis: ${data.factors.oddsAnalysis}`, 25, yPos + 30);
+        doc.text(`Hidden Value: ${data.factors.hiddenValue}`, 25, yPos + 40);
+        
+        // Bookmaker Odds
+        if (bookmakerOdds && bookmakerOdds.length > 0) {
+          yPos += 60;
+          doc.setFontSize(14);
+          doc.text('Bookmaker Odds', 20, yPos);
+          
+          doc.setFontSize(10);
+          yPos += 10;
+          bookmakerOdds.slice(0, 10).forEach((odd, index) => {
+            doc.text(`${odd.bookmaker}: ${odd.score} @ ${odd.coefficient}`, 25, yPos + (index * 8));
+          });
+        }
+        
+        // Footer
+        doc.setFontSize(8);
+        doc.text(`Generated on ${new Date().toLocaleString()}`, 20, 280);
+        doc.text('FIFA Virtual Predictor - AI Analysis', 20, 285);
+        
+        doc.save(`prediction_${data.teamA}_vs_${data.teamB}.pdf`);
+      }).catch(error => {
+        console.error('PDF export error:', error);
+        throw new Error('Failed to export PDF file');
+      });
+      return true;
+    } catch (error) {
+      throw new Error('PDF export failed: ' + error.message);
+    }
+  }
+
+  prepareExportData(prediction, matchData, bookmakerOdds) {
+    return {
+      teamA: matchData?.teamA || 'Team A',
+      teamB: matchData?.teamB || 'Team B',
+      date: matchData?.date || new Date().toLocaleDateString(),
+      time: matchData?.time || new Date().toLocaleTimeString(),
+      halfTimeScore: prediction?.halfTimeScore || 'N/A',
+      fullTimeScore: prediction?.fullTimeScore || 'N/A',
+      confidence: prediction?.confidence || 0,
+      factors: {
+        h2hPattern: prediction?.factors?.h2hPattern || 'N/A',
+        goalFrequency: prediction?.factors?.goalFrequency || 'N/A',
+        exactScores: prediction?.factors?.exactScores || 'N/A',
+        oddsAnalysis: prediction?.factors?.oddsAnalysis || 'N/A',
+        hiddenValue: prediction?.factors?.hiddenValue || 'N/A',
+        hiddenOdds: prediction?.factors?.hiddenOdds || 'N/A'
+      }
+    };
+  }
+
+  downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 }
 

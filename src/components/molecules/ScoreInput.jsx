@@ -9,9 +9,10 @@ const ScoreInput = ({
   className,
   error 
 }) => {
-  const handleChange = (e) => {
+const handleChange = (e) => {
     const score = e.target.value;
-    // Basic validation for score format (e.g., "2-1", "0-0")
+    // Enhanced validation for score format (e.g., "2-1", "0-0")
+    // Allow empty string or valid score format (1-2 digits, dash, 1-2 digits)
     if (score === "" || /^\d{1,2}-\d{1,2}$/.test(score)) {
       onChange(score);
     }

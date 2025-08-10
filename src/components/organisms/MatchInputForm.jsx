@@ -46,16 +46,21 @@ const [matchData, setMatchData] = useState({
       fullTimeScore: "",
       date: ""
     })),
-    exactScores: {
+exactScores: {
       halfTime: "",
       fullTime: ""
     },
     bookmakerScores: {
-      halfTime: "",
-      fullTime: "",
-      alternative1: "",
-      alternative2: "",
-      alternative3: ""
+      score1: "", score2: "", score3: "", score4: "", score5: "",
+      score6: "", score7: "", score8: "", score9: "", score10: "",
+      score11: "", score12: "", score13: "", score14: "", score15: "",
+      score16: "", score17: "", score18: "", score19: "", score20: ""
+    },
+    bookmakerCoefficients: {
+      coeff1: "", coeff2: "", coeff3: "", coeff4: "", coeff5: "",
+      coeff6: "", coeff7: "", coeff8: "", coeff9: "", coeff10: "",
+      coeff11: "", coeff12: "", coeff13: "", coeff14: "", coeff15: "",
+      coeff16: "", coeff17: "", coeff18: "", coeff19: "", coeff20: ""
     }
   });
 
@@ -104,18 +109,26 @@ matchData.h2hResults.forEach((h2h, index) => {
     });
 
     // Validate exact scores format
-    if (matchData.exactScores.halfTime && !/^\d{1,2}-\d{1,2}$/.test(matchData.exactScores.halfTime.trim())) {
+if (matchData.exactScores.halfTime && !/^\d{1,2}-\d{1,2}$/.test(matchData.exactScores.halfTime.trim())) {
       newErrors.exactHalfTime = "Format invalide (ex: 1-0)";
     }
     if (matchData.exactScores.fullTime && !/^\d{1,2}-\d{1,2}$/.test(matchData.exactScores.fullTime.trim())) {
       newErrors.exactFullTime = "Format invalide (ex: 2-1)";
     }
 
-    // Validate bookmaker scores format
+    // Validate bookmaker scores and coefficients format
     Object.keys(matchData.bookmakerScores).forEach(key => {
       const score = matchData.bookmakerScores[key];
       if (score && !/^\d{1,2}-\d{1,2}$/.test(score.trim())) {
-        newErrors[`bookmaker_${key}`] = "Format invalide (ex: 2-1)";
+        newErrors[`bookmaker_${key}`] = "Format score invalide (ex: 2-1)";
+      }
+    });
+
+    // Validate coefficients format
+    Object.keys(matchData.bookmakerCoefficients).forEach(key => {
+      const coeff = matchData.bookmakerCoefficients[key];
+      if (coeff && (isNaN(parseFloat(coeff)) || parseFloat(coeff) <= 0)) {
+        newErrors[`coefficient_${key}`] = "Coefficient invalide (ex: 1.85)";
       }
     });
 
@@ -132,9 +145,16 @@ const handleSubmit = (e) => {
       );
 
       // Clean bookmaker scores
-      const cleanBookmakerScores = Object.keys(matchData.bookmakerScores).reduce((acc, key) => {
+const cleanBookmakerScores = Object.keys(matchData.bookmakerScores).reduce((acc, key) => {
         if (matchData.bookmakerScores[key].trim()) {
           acc[key] = matchData.bookmakerScores[key].trim();
+        }
+        return acc;
+      }, {});
+
+      const cleanBookmakerCoefficients = Object.keys(matchData.bookmakerCoefficients).reduce((acc, key) => {
+        if (matchData.bookmakerCoefficients[key].trim()) {
+          acc[key] = parseFloat(matchData.bookmakerCoefficients[key].trim());
         }
         return acc;
       }, {});
@@ -146,7 +166,8 @@ const handleSubmit = (e) => {
           halfTime: matchData.exactScores.halfTime.trim(),
           fullTime: matchData.exactScores.fullTime.trim()
         },
-        bookmakerScores: cleanBookmakerScores
+        bookmakerScores: cleanBookmakerScores,
+        bookmakerCoefficients: cleanBookmakerCoefficients
       });
       
       toast.success(`Analysis started for ${matchData.teamA} vs ${matchData.teamB}`);
@@ -172,16 +193,21 @@ const clearForm = () => {
         fullTimeScore: "",
         date: ""
       })),
-      exactScores: {
+exactScores: {
         halfTime: "",
         fullTime: ""
       },
       bookmakerScores: {
-        halfTime: "",
-        fullTime: "",
-        alternative1: "",
-        alternative2: "",
-        alternative3: ""
+        score1: "", score2: "", score3: "", score4: "", score5: "",
+        score6: "", score7: "", score8: "", score9: "", score10: "",
+        score11: "", score12: "", score13: "", score14: "", score15: "",
+        score16: "", score17: "", score18: "", score19: "", score20: ""
+      },
+      bookmakerCoefficients: {
+        coeff1: "", coeff2: "", coeff3: "", coeff4: "", coeff5: "",
+        coeff6: "", coeff7: "", coeff8: "", coeff9: "", coeff10: "",
+        coeff11: "", coeff12: "", coeff13: "", coeff14: "", coeff15: "",
+        coeff16: "", coeff17: "", coeff18: "", coeff19: "", coeff20: ""
       }
     });
     setErrors({});
@@ -386,7 +412,7 @@ const clearForm = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField label="Half-Time Exact Score">
+<FormField label="Half-Time Exact Score">
               <ScoreInput
                 value={matchData.exactScores.halfTime}
                 onChange={(value) => setMatchData({
@@ -394,6 +420,7 @@ const clearForm = () => {
                   exactScores: { ...matchData.exactScores, halfTime: value }
                 })}
                 placeholder="1-0"
+                error={errors.exactHalfTime}
               />
             </FormField>
             
@@ -405,6 +432,7 @@ const clearForm = () => {
                   exactScores: { ...matchData.exactScores, fullTime: value }
                 })}
                 placeholder="2-1"
+                error={errors.exactFullTime}
               />
             </FormField>
           </div>
@@ -415,7 +443,7 @@ const clearForm = () => {
           </p>
 </motion.div>
 
-        {/* Bookmaker Exact Scores Section */}
+{/* Bookmaker Exact Scores Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -427,124 +455,81 @@ const clearForm = () => {
               <ApperIcon name="Target" size={20} className="text-accent" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Scores Exacts des Bookmakers</h3>
-              <p className="text-sm text-gray-400">Saisissez les scores que les bookmakers proposent</p>
+              <h3 className="text-lg font-semibold text-white">Scores Exacts des Bookmakers (20 Options)</h3>
+              <p className="text-sm text-gray-400">Saisissez les scores et coefficients que les bookmakers proposent</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Primary Bookmaker Scores */}
-            <div className="space-y-4">
-              <h4 className="text-md font-medium text-primary flex items-center gap-2">
-                <ApperIcon name="Star" size={16} />
-                Scores Principaux
-              </h4>
-              
-              <FormField
-                label="Mi-temps (Bookmaker)"
-                error={errors.bookmaker_halfTime}
-                required={false}
-              >
-                <ScoreInput
-                  value={matchData.bookmakerScores.halfTime}
-                  onChange={(value) => setMatchData(prev => ({
-                    ...prev,
-                    bookmakerScores: { ...prev.bookmakerScores, halfTime: value }
-                  }))}
-                  placeholder="1-0"
-                  className={cn(
-                    "bg-surface/50 border-gray-600",
-                    errors.bookmaker_halfTime && "border-error"
-                  )}
-                />
-              </FormField>
-
-              <FormField
-                label="Temps plein (Bookmaker)"
-                error={errors.bookmaker_fullTime}
-                required={false}
-              >
-                <ScoreInput
-                  value={matchData.bookmakerScores.fullTime}
-                  onChange={(value) => setMatchData(prev => ({
-                    ...prev,
-                    bookmakerScores: { ...prev.bookmakerScores, fullTime: value }
-                  }))}
-                  placeholder="2-1"
-                  className={cn(
-                    "bg-surface/50 border-gray-600",
-                    errors.bookmaker_fullTime && "border-error"
-                  )}
-                />
-              </FormField>
-            </div>
-
-            {/* Alternative Bookmaker Scores */}
-            <div className="space-y-4">
-              <h4 className="text-md font-medium text-accent flex items-center gap-2">
-                <ApperIcon name="Plus" size={16} />
-                Scores Alternatifs
-              </h4>
-              
-              <FormField
-                label="Alternative 1"
-                error={errors.bookmaker_alternative1}
-                required={false}
-              >
-                <ScoreInput
-                  value={matchData.bookmakerScores.alternative1}
-                  onChange={(value) => setMatchData(prev => ({
-                    ...prev,
-                    bookmakerScores: { ...prev.bookmakerScores, alternative1: value }
-                  }))}
-                  placeholder="1-1"
-                  className={cn(
-                    "bg-surface/50 border-gray-600",
-                    errors.bookmaker_alternative1 && "border-error"
-                  )}
-                />
-              </FormField>
-
-              <FormField
-                label="Alternative 2"
-                error={errors.bookmaker_alternative2}
-                required={false}
-              >
-                <ScoreInput
-                  value={matchData.bookmakerScores.alternative2}
-                  onChange={(value) => setMatchData(prev => ({
-                    ...prev,
-                    bookmakerScores: { ...prev.bookmakerScores, alternative2: value }
-                  }))}
-                  placeholder="0-1"
-                  className={cn(
-                    "bg-surface/50 border-gray-600",
-                    errors.bookmaker_alternative2 && "border-error"
-                  )}
-                />
-              </FormField>
-
-              <FormField
-                label="Alternative 3"
-                error={errors.bookmaker_alternative3}
-                required={false}
-              >
-                <ScoreInput
-                  value={matchData.bookmakerScores.alternative3}
-                  onChange={(value) => setMatchData(prev => ({
-                    ...prev,
-                    bookmakerScores: { ...prev.bookmakerScores, alternative3: value }
-                  }))}
-                  placeholder="3-0"
-                  className={cn(
-                    "bg-surface/50 border-gray-600",
-                    errors.bookmaker_alternative3 && "border-error"
-                  )}
-                />
-              </FormField>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {Array.from({ length: 20 }, (_, index) => {
+              const scoreKey = `score${index + 1}`;
+              const coeffKey = `coeff${index + 1}`;
+              return (
+                <div key={index} className="space-y-2">
+                  <div className="text-xs font-medium text-primary flex items-center gap-1">
+                    <ApperIcon name="Hash" size={12} />
+                    Option {index + 1}
+                  </div>
+                  
+                  <FormField
+                    label={`Score ${index + 1}`}
+                    error={errors[`bookmaker_${scoreKey}`]}
+                    required={false}
+                    className="mb-2"
+                  >
+                    <ScoreInput
+                      value={matchData.bookmakerScores[scoreKey]}
+                      onChange={(value) => setMatchData(prev => ({
+                        ...prev,
+                        bookmakerScores: { ...prev.bookmakerScores, [scoreKey]: value }
+                      }))}
+                      placeholder="2-1"
+                      className={cn(
+                        "bg-surface/50 border-gray-600 text-sm h-9",
+                        errors[`bookmaker_${scoreKey}`] && "border-error"
+                      )}
+                    />
+                  </FormField>
+                  
+                  <FormField
+                    label={`Coefficient ${index + 1}`}
+                    error={errors[`coefficient_${coeffKey}`]}
+                    required={false}
+                  >
+                    <Input
+                      type="text"
+                      value={matchData.bookmakerCoefficients[coeffKey]}
+                      onChange={(e) => setMatchData(prev => ({
+                        ...prev,
+                        bookmakerCoefficients: { ...prev.bookmakerCoefficients, [coeffKey]: e.target.value }
+                      }))}
+                      placeholder="1.85"
+                      className={cn(
+                        "bg-surface/50 border-gray-600 text-sm h-9",
+                        errors[`coefficient_${coeffKey}`] && "border-error"
+                      )}
+                    />
+                  </FormField>
+                </div>
+              );
+            })}
           </div>
-
+          
+          <div className="mt-4 p-3 bg-info/10 rounded-lg border border-info/20">
+            <div className="flex items-start gap-2">
+              <ApperIcon name="Info" size={16} className="text-info mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-gray-300">
+                <p className="font-medium text-info mb-1">Comment utiliser:</p>
+                <ul className="space-y-1 text-xs">
+                  <li>• Saisissez le score exact (ex: 2-1, 0-0, 3-2)</li>
+                  <li>• Ajoutez le coefficient proposé par le bookmaker (ex: 1.85, 2.50)</li>
+                  <li>• Plus vous remplissez d'options, plus la prédiction sera précise</li>
+                  <li>• Les scores avec les meilleurs coefficients seront priorisés</li>
+                </ul>
+              </div>
+</div>
+          </div>
+          
           <div className="mt-4 p-3 bg-info/10 border border-info/20 rounded-lg">
             <p className="text-sm text-info flex items-start gap-2">
               <ApperIcon name="Info" size={16} className="mt-0.5" />

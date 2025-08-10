@@ -1,8 +1,5 @@
-import React from "react";
-import Error from "@/components/ui/Error";
 import mockPredictions from "@/services/mockData/predictions.json";
 import mockPatterns from "@/services/mockData/patterns.json";
-
 class PredictionService {
   async generatePrediction(data) {
     // Simulate API delay for realistic loading state
@@ -214,7 +211,6 @@ generateAdvancedPrediction(h2hAnalysis, oddsAnalysis, match) {
           return (a + b) >= 3;
         })
       : highScoringScores;
-  }
 }
 
   // Export functionality

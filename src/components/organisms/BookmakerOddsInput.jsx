@@ -14,9 +14,11 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
     bookmaker: "Bet365"
   });
 
-  const bookmakers = [
+const bookmakers = [
     "Bet365", "William Hill", "Paddy Power", "Betfair", "Ladbrokes",
-    "Coral", "Sky Bet", "Betway", "888Sport", "Unibet"
+    "Coral", "Sky Bet", "Betway", "888Sport", "Unibet", "Pinnacle",
+    "Betsson", "LeoVegas", "Casumo", "Betfred", "Betvictor", 
+    "Marathonbet", "10Bet", "Bwin", "Titanbet"
   ];
 
 const addOdd = () => {

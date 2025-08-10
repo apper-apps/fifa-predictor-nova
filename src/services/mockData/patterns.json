@@ -1,0 +1,52 @@
+{
+  "patterns": [
+    {
+      "Id": 1,
+      "teamA": "Arsenal",
+      "teamB": "Chelsea",
+      "goalDistribution": [
+        { "goals": "0-1", "count": 2 },
+        { "goals": "2-3", "count": 4 },
+        { "goals": "4-5", "count": 6 },
+        { "goals": "6-7", "count": 3 },
+        { "goals": "8+", "count": 1 }
+      ],
+      "scoreFrequency": [
+        { "score": "2-1", "frequency": 22 },
+        { "score": "1-1", "frequency": 18 },
+        { "score": "3-2", "frequency": 16 },
+        { "score": "1-0", "frequency": 15 },
+        { "score": "2-2", "frequency": 12 },
+        { "score": "2-0", "frequency": 10 }
+      ],
+      "averageGoals": 4.2,
+      "halfTimeGoals": "62%",
+      "drawRate": "18%",
+      "upsetRate": "12%"
+    },
+    {
+      "Id": 2,
+      "teamA": "Manchester City",
+      "teamB": "Liverpool",
+      "goalDistribution": [
+        { "goals": "0-1", "count": 1 },
+        { "goals": "2-3", "count": 3 },
+        { "goals": "4-5", "count": 7 },
+        { "goals": "6-7", "count": 4 },
+        { "goals": "8+", "count": 2 }
+      ],
+      "scoreFrequency": [
+        { "score": "3-2", "frequency": 25 },
+        { "score": "2-1", "frequency": 20 },
+        { "score": "4-1", "frequency": 18 },
+        { "score": "2-2", "frequency": 15 },
+        { "score": "3-1", "frequency": 12 },
+        { "score": "1-1", "frequency": 10 }
+      ],
+      "averageGoals": 4.8,
+      "halfTimeGoals": "58%",
+      "drawRate": "15%",
+      "upsetRate": "14%"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "predictions": [
+    {
+      "Id": 1,
+      "halfTimeScore": "2-1",
+      "fullTimeScore": "3-2",
+      "confidence": 78,
+      "factors": {
+        "h2hPattern": "High-Scoring",
+        "goalFrequency": "Very High",
+        "oddsAnalysis": "Value Detected",
+        "hiddenValue": "Found"
+      }
+    },
+    {
+      "Id": 2,
+      "halfTimeScore": "1-0",
+      "fullTimeScore": "2-1",
+      "confidence": 82,
+      "factors": {
+        "h2hPattern": "Consistent",
+        "goalFrequency": "High",
+        "oddsAnalysis": "Standard",
+        "hiddenValue": "Limited"
+      }
+    },
+    {
+      "Id": 3,
+      "halfTimeScore": "1-1",
+      "fullTimeScore": "3-2",
+      "confidence": 75,
+      "factors": {
+        "h2hPattern": "Volatile",
+        "goalFrequency": "Very High",
+        "oddsAnalysis": "Favorable",
+        "hiddenValue": "Detected"
+      }
+    },
+    {
+      "Id": 4,
+      "halfTimeScore": "2-0",
+      "fullTimeScore": "4-1",
+      "confidence": 85,
+      "factors": {
+        "h2hPattern": "Dominant",
+        "goalFrequency": "Extremely High",
+        "oddsAnalysis": "Value Detected",
+        "hiddenValue": "Strong"
+      }
+    },
+    {
+      "Id": 5,
+      "halfTimeScore": "0-1",
+      "fullTimeScore": "1-3",
+      "confidence": 71,
+      "factors": {
+        "h2hPattern": "Away Strong",
+        "goalFrequency": "High",
+        "oddsAnalysis": "Hidden Value",
+        "hiddenValue": "Found"
+      }
+    }
+  ]
+}

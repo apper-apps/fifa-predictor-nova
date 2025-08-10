@@ -86,37 +86,53 @@ class PredictionService {
     return patterns;
   }
 
-  analyzeBookmakerOdds(odds) {
+analyzeBookmakerOdds(odds) {
     const analysis = {
       averageOdds: {},
       hiddenValue: [],
+      highValueScores: [],
+      coefficientRange: { min: 0, max: 0 },
       patterns: []
     };
 
-    // Group odds by score
+    if (odds.length === 0) return analysis;
+
+    // Group odds by exact score
     const oddsByScore = {};
+    let allCoefficients = [];
+    
     odds.forEach(odd => {
       if (!oddsByScore[odd.score]) {
         oddsByScore[odd.score] = [];
       }
-      oddsByScore[odd.score].push(odd.coefficient);
+      oddsByScore[odd.score].push(parseFloat(odd.coefficient));
+      allCoefficients.push(parseFloat(odd.coefficient));
     });
 
-    // Calculate average odds and detect hidden value
+    // Calculate coefficient statistics
+    analysis.coefficientRange.min = Math.min(...allCoefficients);
+    analysis.coefficientRange.max = Math.max(...allCoefficients);
+
+    // Calculate average odds and detect value opportunities
     Object.entries(oddsByScore).forEach(([score, coefficients]) => {
       const avg = coefficients.reduce((a, b) => a + b, 0) / coefficients.length;
       analysis.averageOdds[score] = avg;
 
-      // Detect potentially undervalued scores
-      if (avg > 3.5 && avg < 8.0) {
+      // Detect high-value exact scores (higher coefficients = better value)
+      if (avg >= 4.0) {
         analysis.hiddenValue.push(score);
+      }
+      
+      // Identify premium value scores (very high coefficients)
+      if (avg >= 6.0) {
+        analysis.highValueScores.push({ score, coefficient: avg });
       }
     });
 
     return analysis;
   }
 
-  generateAdvancedPrediction(h2hAnalysis, oddsAnalysis, match) {
+generateAdvancedPrediction(h2hAnalysis, oddsAnalysis, match) {
     // Get base prediction from mock data
     const basePredictions = mockPredictions.predictions;
     const randomBase = basePredictions[Math.floor(Math.random() * basePredictions.length)];
@@ -126,25 +142,46 @@ class PredictionService {
       ? h2hAnalysis.totalGoals.reduce((a, b) => a + b, 0) / h2hAnalysis.totalGoals.length
       : 4.2;
 
-    // Generate realistic scores based on high-scoring nature
-    const possibleScores = this.generateHighScoringOptions(avgGoals);
-    
-    // Select hidden value score if available
+    // Use user's exact score predictions if provided
     let selectedFullTime = randomBase.fullTimeScore;
-    if (oddsAnalysis.hiddenValue.length > 0) {
+    let selectedHalfTime = randomBase.halfTimeScore;
+
+    // Prioritize user's exact score inputs
+    if (match.exactScores && match.exactScores.fullTime) {
+      selectedFullTime = match.exactScores.fullTime;
+    } else if (oddsAnalysis.highValueScores.length > 0) {
+      // Use highest value exact score from bookmaker odds
+      const bestValue = oddsAnalysis.highValueScores.sort((a, b) => b.coefficient - a.coefficient)[0];
+      selectedFullTime = bestValue.score;
+    } else if (oddsAnalysis.hiddenValue.length > 0) {
       selectedFullTime = oddsAnalysis.hiddenValue[Math.floor(Math.random() * oddsAnalysis.hiddenValue.length)];
     }
 
-    // Generate corresponding half-time score
-    const [ftA, ftB] = selectedFullTime.split("-").map(Number);
-    const htA = Math.floor(ftA * (0.4 + Math.random() * 0.4)); // 40-80% of full time
-    const htB = Math.floor(ftB * (0.4 + Math.random() * 0.4));
-    const selectedHalfTime = `${htA}-${htB}`;
+    // Use user's half-time prediction or generate based on full-time
+    if (match.exactScores && match.exactScores.halfTime) {
+      selectedHalfTime = match.exactScores.halfTime;
+    } else {
+      const [ftA, ftB] = selectedFullTime.split("-").map(Number);
+      const htA = Math.floor(ftA * (0.4 + Math.random() * 0.4)); // 40-80% of full time
+      const htB = Math.floor(ftB * (0.4 + Math.random() * 0.4));
+      selectedHalfTime = `${htA}-${htB}`;
+    }
 
-    // Calculate confidence based on data quality
+    // Calculate confidence based on data quality and exact scores
     const dataPoints = match.h2hResults.length + Object.keys(oddsAnalysis.averageOdds).length;
-    const baseConfidence = Math.min(95, 60 + (dataPoints * 2));
-    const confidence = Math.floor(baseConfidence + Math.random() * 10);
+    let baseConfidence = Math.min(95, 60 + (dataPoints * 2));
+    
+    // Boost confidence if exact scores provided
+    if (match.exactScores && (match.exactScores.halfTime || match.exactScores.fullTime)) {
+      baseConfidence += 15;
+    }
+    
+    // Boost confidence for high-value odds
+    if (oddsAnalysis.highValueScores.length > 0) {
+      baseConfidence += 10;
+    }
+
+    const confidence = Math.min(98, Math.floor(baseConfidence + Math.random() * 5));
 
     return {
       halfTimeScore: selectedHalfTime,
@@ -153,9 +190,11 @@ class PredictionService {
       factors: {
         h2hPattern: avgGoals > 4 ? "High-Scoring" : "Moderate",
         goalFrequency: "Very High",
-        oddsAnalysis: oddsAnalysis.hiddenValue.length > 0 ? "Value Detected" : "Standard",
+        exactScores: match.exactScores && (match.exactScores.halfTime || match.exactScores.fullTime) ? "User Provided" : "Generated",
+        oddsAnalysis: oddsAnalysis.highValueScores.length > 0 ? "Premium Value Found" : oddsAnalysis.hiddenValue.length > 0 ? "Value Detected" : "Standard",
+        coefficientRange: oddsAnalysis.coefficientRange.max > 0 ? `${oddsAnalysis.coefficientRange.min.toFixed(1)}-${oddsAnalysis.coefficientRange.max.toFixed(1)}` : "No odds data",
         hiddenValue: oddsAnalysis.hiddenValue.length > 0 ? "Found" : "Limited",
-        hiddenOdds: oddsAnalysis.hiddenValue.length > 0 ? "undervalued" : "fairly valued"
+        hiddenOdds: oddsAnalysis.highValueScores.length > 0 ? "premium value" : oddsAnalysis.hiddenValue.length > 0 ? "undervalued" : "fairly valued"
       }
     };
   }

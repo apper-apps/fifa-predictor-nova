@@ -182,6 +182,17 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
         )}
       </div>
 
+{/* Exact Score Focus Info */}
+      <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <ApperIcon name="Target" size={16} className="text-accent" />
+          <span className="text-sm font-medium text-accent">Exact Score Focus</span>
+        </div>
+        <p className="text-xs text-gray-300">
+          Add bookmaker exact score odds with coefficients. Higher coefficients indicate better value opportunities.
+        </p>
+      </div>
+
       {/* Analyze Button */}
       <Button
         variant="accent"
@@ -193,20 +204,20 @@ const BookmakerOddsInput = ({ odds, onOddsChange, onAnalyze, loading }) => {
         {loading ? (
           <>
             <ApperIcon name="Loader2" size={16} className="mr-2 animate-spin" />
-            Analyzing Patterns...
+            Analyzing Exact Score Patterns...
           </>
         ) : (
           <>
-            <ApperIcon name="Zap" size={16} className="mr-2" />
-            Analyze Hidden Patterns
-            {odds.length < 3 && ` (${3 - odds.length} more needed)`}
+            <ApperIcon name="Crosshair" size={16} className="mr-2" />
+            Analyze Exact Score Value
+            {odds.length < 3 && ` (${3 - odds.length} more exact scores needed)`}
           </>
         )}
       </Button>
 
       {odds.length > 0 && (
         <p className="text-xs text-gray-400 text-center mt-2">
-          {odds.length} odds ready • Minimum 3 required for analysis
+          {odds.length} exact score odds ready • Focus on high-coefficient scores for better value
         </p>
       )}
     </motion.div>
